@@ -32,40 +32,36 @@ function handler (req, res) {
 }
 
 
+
+
+
+
+// variables needed in calculating broadcast speed
 var dataBroadcasted = 0; // in bytes
 var startTime = process.hrtime()[0]; // in seconds
 var time, previousTime = 0;
 
-
-
-var kcontext = kinect();
-
-kcontext.resume();
-
-kcontext.start('depth');
-
-
 // simple frame skipping counter
 var counter = 0;
+var keepEvery = 2; // 1 = every frame, 2 = every second frame, 3 = every third frame
 
-
-
-
+var kcontext = kinect();
 var kstream = new BufferStream();
 
-kcontext.on('depth', function (buf) {
+kcontext.resume();
+kcontext.start('depth');
 
-  if (counter % 3 == 0) { // keep every 25th frame
+kcontext.on('depth', function (buf) {
+  if (counter % keepEvery == 0) {
       kstream.write(buf);
+
+      // calculate how much i have broadcasted
       dataBroadcasted += toArrayBuffer(buf).byteLength;
 
   }
   counter++;
 
-  if (counter == 100) {
-    counter = 0;
-  }
-  
+  if (counter == 100) counter = 0;
   time = process.hrtime()[0] - startTime;
 
   if (time != previousTime) {
