@@ -54,39 +54,28 @@ var kcontext = kinect();
 var kstream = new BufferStream();
 var arrayBuffer = null;
 
+var DATA_TYPE = 'depth'; // depth || video
+var COMPRESSION = true;
+
 kcontext.resume();
-kcontext.start('depth');
 
-kcontext.on('depth', function (buf) {
+
+kcontext.start(DATA_TYPE);
+
+kcontext.on(DATA_TYPE, function (buf) {
   if (counter % keepEvery == 0) {
-      arrayBuffer = toArrayBuffer(buf);
 
+      if (COMPRESSION) {
+        kstream.write(compress(buf));  
+      }
+      else {
+        kstream.write(buf);
+      }
 
-
-      // console.log(buf.toString('base64'));
-
-
-      // var encode = lzw.encode(ab2str(buf));
-      // console.log(typeof(encode));
-      // console.log('idem komprimuvat!');
-      // var inStream = buf // tu su moje data!
-      // console.log(arrayBuffer.byteLength);
-      // var outStream = wrapArrayBuffer(new ArrayBuffer()) // toto je moj output
-
-      kstream.write(compress(buf));
-      // kstream.write(buf.toString('base64'));
-      // kstream.write('test');
-      // kstream.write(encode);
-      // kstream.write(lzma.compressFile(buf));
-
-      // outStream = lzma.compressFile(buf);
-
-      // console.log(outStream, typeof(outStream));
-
-      // console.log(lzma.compressFile(buf));
       // calculate how much i have broadcasted
-      dataBroadcasted += arrayBuffer.byteLength;
-      // console.log(dataBroadcasted);
+      dataBroadcasted += toArrayBuffer(compress(buf)).byteLength;
+
+  
   }
   counter++;
 

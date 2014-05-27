@@ -1,26 +1,4 @@
-var app = require('http').createServer(function (req, res) {
-  if(req.url === "/"){
-    fs.readFile(__dirname + '/index.html',
-        function (err, data) {
-          if (err) {
-            res.writeHead(500);
-            return res.end('Error loading index.html');
-          }
-          res.writeHead(200);
-          res.end(data);
-        });
-  }
-  else{
-    fs.readFile(__dirname + req.url, function (err, data) {
-      if (err) {
-        res.writeHead(500);
-        return res.end('Error loading ' +req.url);
-      }
-      res.writeHead(200);
-      res.end(data);
-    });
-  }
-}).listen(5000)
+var app = require('http').createServer(handler).listen(5000)
 , fs = require('fs')
 , kinect = require('kinect')
 , BufferStream = require('bufferstream')
@@ -36,18 +14,23 @@ var compress = require('compress-buffer').compress
 var kstream = new BufferStream();
 
 
+var COMPRESSION = true;
+
+
 socket.on('data', function (data) {
 
-  data = uncompress(data);
-
-  if (data != undefined){
-      
-      // console.log(uncompress(data));
-      kstream.write(slowBufferToBuffer(data));
+  console.log('data forward');
+  if (COMPRESSION) {
+    data = uncompress(data);
+    if (data != undefined) {
+      data = slowBufferToBuffer(data)
+      kstream.write(data);
+    }
   }
-
-
-  
+  else {
+    kstream.write(data);
+  }
+      
 
 });
 
@@ -77,10 +60,9 @@ function slowBufferToBuffer(slowBuffer){
   var buffer = new Buffer(slowBuffer.length);
   slowBuffer.copy(buffer);
 
-  return buffer;
+  return buffer;  
+  
 }
-
-
 
 
 function toBuffer(ab) {
@@ -128,4 +110,28 @@ function str2ab(str) {
     bufView[i] = str.charCodeAt(i);
   }
   return buf;
+}
+
+var handler = function (req, res) {
+  if(req.url === "/"){
+    fs.readFile(__dirname + '/index.html',
+        function (err, data) {
+          if (err) {
+            res.writeHead(500);
+            return res.end('Error loading index.html');
+          }
+          res.writeHead(200);
+          res.end(data);
+        });
+  }
+  else{
+    fs.readFile(__dirname + req.url, function (err, data) {
+      if (err) {
+        res.writeHead(500);
+        return res.end('Error loading ' +req.url);
+      }
+      res.writeHead(200);
+      res.end(data);
+    });
+  }
 }

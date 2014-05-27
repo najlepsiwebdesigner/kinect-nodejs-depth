@@ -2,12 +2,9 @@
 (function (Buffer){
 var websocket = require('websocket-stream');
 var socket = websocket('ws://localhost:5000');
-// var lzw = require("node-lzw");
-// var compress = require('compress-buffer').compress;
-// var uncompress = require('compress-buffer').uncompress;
-// var inflate = require('./node_modules/deflate-js/lib/rawinflate.js'),arr;s
 
 
+var DATA_TYPE = 'depth'; // video || depth
 
 console.log("connected");
 
@@ -18,15 +15,7 @@ var bytearray;
 var ctx = document.getElementById('canvas').getContext('2d');
 
 
-
-// console.log("test", lzw);
-//video vis
-
 socket.on('data', function (data) {
-
-
-  // console.log(data)
-  
 
   var bytearray = new Uint8Array(data);
 
@@ -35,20 +24,25 @@ socket.on('data', function (data) {
   var imgdatalen = imgdata.data.length;
   for(var i=0;i<imgdatalen/4;i++){
 
-    /*
-     //for video feed . bytearray [r,g,b,r,g,b...]
-    imgdata.data[4*i] = bytearray[3*i];
-    imgdata.data[4*i+1] = bytearray[3*i+1];
-    imgdata.data[4*i+2] = bytearray[3*i+2];
-    imgdata.data[4*i+3] = 255;
-    */
 
-    //for depth feed  . bytearray  [val , mult, val2, mult2, ...]
-    var depth = (bytearray[2*i]+bytearray[2*i+1]*255)/5;
-    imgdata.data[4*i] = depth;
-    imgdata.data[4*i+1] = depth;
-    imgdata.data[4*i+2] = depth;
-    imgdata.data[4*i+3] = 255;
+    if (DATA_TYPE == 'video') {
+      //for video feed . bytearray [r,g,b,r,g,b...]
+      imgdata.data[4*i] = bytearray[3*i];
+      imgdata.data[4*i+1] = bytearray[3*i+1];
+      imgdata.data[4*i+2] = bytearray[3*i+2];
+      imgdata.data[4*i+3] = 255;
+
+    }
+    else {
+      //for depth feed  . bytearray  [val , mult, val2, mult2, ...]
+      var depth = (bytearray[2*i]+bytearray[2*i+1]*255)/5;
+      imgdata.data[4*i] = depth;
+      imgdata.data[4*i+1] = depth;
+      imgdata.data[4*i+2] = depth;
+      imgdata.data[4*i+3] = 255; 
+    }
+
+    
   }
   ctx.putImageData(imgdata,0,0)
 
