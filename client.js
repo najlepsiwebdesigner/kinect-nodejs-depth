@@ -1,6 +1,11 @@
 var websocket = require('websocket-stream');
+var socket = websocket('ws://localhost:5000');
+// var lzw = require("node-lzw");
+// var compress = require('compress-buffer').compress;
+// var uncompress = require('compress-buffer').uncompress;
+// var inflate = require('./node_modules/deflate-js/lib/rawinflate.js'),arr;s
 
-var socket = websocket('ws://localhost:3000');
+
 
 console.log("connected");
 
@@ -10,10 +15,20 @@ var bytearray;
 
 var ctx = document.getElementById('canvas').getContext('2d');
 
+
+
+// console.log("test", lzw);
 //video vis
 
 socket.on('data', function (data) {
+
+
+  // console.log(data)
+  
+
   var bytearray = new Uint8Array(data);
+
+
   var imgdata = ctx.getImageData(0,0, width, height);
   var imgdatalen = imgdata.data.length;
   for(var i=0;i<imgdatalen/4;i++){
@@ -41,3 +56,39 @@ socket.on('end', function(){
   console.log("stream ended");
   socket.close();
 });
+
+
+
+
+
+function toBuffer(ab) {
+    var buffer = new Buffer(ab.byteLength);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < buffer.length; ++i) {
+        buffer[i] = view[i];
+    }
+    return buffer;
+}
+
+
+function toArrayBuffer(buffer) {
+    var ab = new ArrayBuffer(buffer.length);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < buffer.length; ++i) {
+        view[i] = buffer[i];
+    }
+    return ab;
+}
+
+// function ab2str(buf) {
+//   return String.fromCharCode.apply(null, new Uint8Array(buf));
+// }
+
+// function str2ab(str) {
+//   var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+//   var bufView = new Uint8Array(buf);
+//   for (var i=0, strLen=str.length; i<strLen; i++) {
+//     bufView[i] = str.charCodeAt(i);
+//   }
+//   return buf;
+// }

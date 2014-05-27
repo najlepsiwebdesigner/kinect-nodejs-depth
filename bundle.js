@@ -1,7 +1,13 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (Buffer){
 var websocket = require('websocket-stream');
+var socket = websocket('ws://localhost:5000');
+// var lzw = require("node-lzw");
+// var compress = require('compress-buffer').compress;
+// var uncompress = require('compress-buffer').uncompress;
+// var inflate = require('./node_modules/deflate-js/lib/rawinflate.js'),arr;s
 
-var socket = websocket('ws://localhost:3000');
+
 
 console.log("connected");
 
@@ -11,10 +17,20 @@ var bytearray;
 
 var ctx = document.getElementById('canvas').getContext('2d');
 
+
+
+// console.log("test", lzw);
 //video vis
 
 socket.on('data', function (data) {
+
+
+  // console.log(data)
+  
+
   var bytearray = new Uint8Array(data);
+
+
   var imgdata = ctx.getImageData(0,0, width, height);
   var imgdatalen = imgdata.data.length;
   for(var i=0;i<imgdatalen/4;i++){
@@ -43,7 +59,43 @@ socket.on('end', function(){
   socket.close();
 });
 
-},{"websocket-stream":2}],2:[function(require,module,exports){
+
+
+
+
+function toBuffer(ab) {
+    var buffer = new Buffer(ab.byteLength);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < buffer.length; ++i) {
+        buffer[i] = view[i];
+    }
+    return buffer;
+}
+
+
+function toArrayBuffer(buffer) {
+    var ab = new ArrayBuffer(buffer.length);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < buffer.length; ++i) {
+        view[i] = buffer[i];
+    }
+    return ab;
+}
+
+// function ab2str(buf) {
+//   return String.fromCharCode.apply(null, new Uint8Array(buf));
+// }
+
+// function str2ab(str) {
+//   var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+//   var bufView = new Uint8Array(buf);
+//   for (var i=0, strLen=str.length; i<strLen; i++) {
+//     bufView[i] = str.charCodeAt(i);
+//   }
+//   return buf;
+// }
+}).call(this,require("buffer").Buffer)
+},{"buffer":6,"websocket-stream":2}],2:[function(require,module,exports){
 (function (process){
 var through = require('through')
 var isBuffer = require('isbuffer')
