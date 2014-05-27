@@ -9,8 +9,8 @@ var app = require('http').createServer(handler).listen(3000)
 // var lzw = require("node-lzw");
 // , lzma = require('lzma-purejs');
 // var lzma = require('lzma-purejs');
-// , compress = require('compress-buffer').compress
-// , uncompress = require('compress-buffer').uncompress;
+var compress = require('compress-buffer').compress
+, uncompress = require('compress-buffer').uncompress;
 
 function handler (req, res) {
   if(req.url === "/"){
@@ -73,7 +73,7 @@ kcontext.on('depth', function (buf) {
       // console.log(arrayBuffer.byteLength);
       // var outStream = wrapArrayBuffer(new ArrayBuffer()) // toto je moj output
 
-      kstream.write(buf);
+      kstream.write(compress(buf));
       // kstream.write(buf.toString('base64'));
       // kstream.write('test');
       // kstream.write(encode);
