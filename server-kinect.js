@@ -6,9 +6,8 @@ var app = require('http').createServer(handler).listen(3000)
 , WebSocketServer = require('ws').Server
 , websocket = require('websocket-stream')
 , wss = new WebSocketServer({server: app});
-// var lzw = require("node-lzw");
-// , lzma = require('lzma-purejs');
-// var lzma = require('lzma-purejs');
+
+
 var compress = require('compress-buffer').compress
 , uncompress = require('compress-buffer').uncompress;
 
@@ -40,7 +39,6 @@ function handler (req, res) {
 
 
 
-
 // variables needed in calculating broadcast speed
 var dataBroadcasted = 0; // in bytes
 var startTime = process.hrtime()[0]; // in seconds
@@ -48,7 +46,7 @@ var time, previousTime = 0;
 
 // simple frame skipping counter
 var counter = 0;
-var keepEvery = 1; // 1 = every frame, 2 = every second frame, 3 = every third frame
+var useEvery = 2; // 1 = every frame, 2 = every second frame, 3 = every third frame
 
 var kcontext = kinect();
 var kstream = new BufferStream();
@@ -63,19 +61,21 @@ kcontext.resume();
 kcontext.start(DATA_TYPE);
 
 kcontext.on(DATA_TYPE, function (buf) {
-  if (counter % keepEvery == 0) {
+  if (counter % useEvery == 0) {
+
+      buf = reduceBuffer(buf)
 
       if (COMPRESSION) {
         kstream.write(compress(buf));  
+        // calculate how much i have broadcasted
+        dataBroadcasted += toArrayBuffer(compress(buf)).byteLength;
       }
       else {
         kstream.write(buf);
+        // calculate how much i have broadcasted
+        dataBroadcasted += toArrayBuffer(buf).byteLength;
       }
 
-      // calculate how much i have broadcasted
-      dataBroadcasted += toArrayBuffer(compress(buf)).byteLength;
-
-  
   }
   counter++;
 
@@ -118,6 +118,94 @@ wss.on('connection', function(ws) {
 
 // helper functions for buffers from 
 // http://stackoverflow.com/questions/8609289/convert-a-binary-nodejs-buffer-to-javascript-arraybuffer
+
+
+function reduceBuffer(buffer) {
+  
+
+  // return buffer;
+
+
+
+  // var newLength = buffer.length;
+  // var newBuffer = new Buffer(newLength)
+
+  // var newBufferCounter = 0;
+
+  // for (var i = 0; i < buffer.length/4; i++) {
+  //   if (i % 2 == 0){
+  //     // jumping on pixels
+  //     newBuffer[newBufferCounter] = buffer[3*i]
+  //     newBuffer[newBufferCounter+1] = buffer[3*i+1]
+  //     newBuffer[newBufferCounter+2] = buffer[3*i+2]
+  //     newBufferCounter++;
+  //   }
+  // }
+  // console.log(buffer.length);
+  // console.log(newBuffer.length);
+  // console.log(newBufferCounter);
+  // return newBuffer;
+  // var view = new Uint8Array(buffer)
+
+  // var rowWidth = 640*3; // = collumns
+  // var rows = 0;
+  // var cols = 0;
+
+  // var newBufferCounter = 0;
+
+
+  // for (var row = 0; row < 480; row++){
+  //   // loop rows
+
+  //   // console.log(row);
+  //   for (var col = 0; col < 640; col++){
+  //     // console.log(row, col)
+
+  //     if (row % 2 == 0 && col % 2 == 0){
+  //       newBuffer[newBufferCounter] = 
+  //       newBufferCounter++;
+  //     }
+  //   }
+
+
+  // }
+
+
+
+  // console.log(buffer.length/640);
+  // for (var i = 0; i < buffer.length; i=i+2) {
+  //   if (i % rowWidth == 0) {
+  //     rows++;
+  //     // console.log(i, rows);
+  //   }
+  //   if (rows % 2 == 0){
+  //     newBuffer[i/2] = view[i];  
+  //   }
+    
+  // }
+
+  // var newBufferCounter = 0;
+
+  // for (var i = 0; i < buffer.length; i++) {
+  //   if (i % rowWidth == 0) {
+  //     rows++;
+  //     // i = i+rowWidth;
+  //     // console.log(i, rows);
+  //   }
+  //   if (i % 2 == 0){
+  //     newBuffer[newBufferCounter] = view[i];
+  //     newBufferCounter++;
+  //   }
+    
+  // }
+
+
+// console.log("Exiting after first frame");
+  // process.exit(code=0)
+  return buffer;
+}
+
+
 
 function toBuffer(ab) {
     var buffer = new Buffer(ab.byteLength);

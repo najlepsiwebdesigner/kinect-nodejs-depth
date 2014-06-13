@@ -33,7 +33,7 @@ socket.on('data', function (data) {
     }
     else {
       //for depth feed  . bytearray  [val , mult, val2, mult2, ...]
-      var depth = (bytearray[2*i]+bytearray[2*i+1]*255)/5;
+      var depth = (bytearray[2*i]+bytearray[2*i+1]*255)/3.9;
       imgdata.data[4*i] = depth;
       imgdata.data[4*i+1] = depth;
       imgdata.data[4*i+2] = depth;

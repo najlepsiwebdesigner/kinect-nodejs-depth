@@ -20,6 +20,7 @@
     "compress-buffer": "~1.2.2",
     "deflate-js": "~0.2.3",
     "lzma-purejs": "~0.9.3",
-    "node-lzw": "~0.2.5"
+    "node-lzw": "~0.2.5",
+    "winston": "~0.7.3"
   }
 }

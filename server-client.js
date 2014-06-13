@@ -19,7 +19,7 @@ var COMPRESSION = true;
 
 socket.on('data', function (data) {
 
-  console.log('data forward');
+  console.log('>>>');
   if (COMPRESSION) {
     data = uncompress(data);
     if (data != undefined) {
